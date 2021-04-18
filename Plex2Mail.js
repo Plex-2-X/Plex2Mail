@@ -1,3 +1,8 @@
+// ----- Mailing List Handeling ------\\
+var fs = require("fs");
+var mailinglist = fs.readFileSync("./mailing list.txt");
+var emails = mailinglist.split("\n")
+
 // ------ Payload handling point -------- \\
 
 const Busboy = require('busboy');
