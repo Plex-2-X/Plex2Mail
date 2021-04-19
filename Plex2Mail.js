@@ -1,15 +1,53 @@
 // ----- Mailing List Handeling ------\\
+
 var fs = require("fs");
-var mailinglist = fs.readFileSync("./mailing list.txt");
-var emails = mailinglist.split("\n")
+var mailinglist = fs.readFileSync("list/mailing list.txt").toString('utf-8');
+var emails = mailinglist.split("\n");
+
+var useGmail = "true";
+var useYahoo = "false";
+var useOutlook = "false";
+var useAol = "false";
+
+if (useGmail == "true"){
+  console.log("gmail active")
+};
+
+if (useYahoo == "true"){
+
+};
+if (useOutlook == "true"){
+
+};
+if (useAol == "true"){
+
+};
+
 
 // ------ Payload handling point -------- \\
 
 const Busboy = require('busboy');
 const express = require('express');
+const bp = require('body-parser')
+const path = require('path');
 const app = new express();
 
-const PORT = 1337 // Change Port here if needed
+const PORT = 13337 // Change Port here if needed
+
+app.use(bp.json())
+app.use(bp.urlencoded({ extended: true }))
+
+app.use('/list', express.static(path.join(__dirname, 'list')));
+
+app.post('/AddToMailList', function (req, res ) {
+  var data = req.body.email;
+  var email = "" + data;
+
+	fs.appendFile('list/mailing list.txt', email + '\n', function (err) {
+	  if (err) throw err;
+	  console.log('=======\nEmail Added\n=======\n')
+	});
+});
 
 app.post('/', async function(req, res, next) {
 	const busboy = new Busboy({headers: req.headers});
@@ -119,10 +157,7 @@ app.post('/', async function(req, res, next) {
 
 	return req.pipe(busboy);
 });
-
-client.once('ready', () => {
-	app.listen(PORT, () => console.log(`\n========\n- Plex2Discord.Js listening for webhooks on port ${PORT} -\n========`));
-});
+app.listen(PORT, () => console.log(`\n========\n- Plex2Discord.Js listening for webhooks on port ${PORT} -\n========`));
 
 
 
