@@ -25,12 +25,13 @@ if (useAol == "true"){
 
 
 // ------ Payload handling point -------- \\
-
+const replace = require('replace-in-file');
 const Busboy = require('busboy');
 const express = require('express');
 const bp = require('body-parser')
 const path = require('path');
 const app = new express();
+
 
 const PORT = 13337 // Change Port here if needed
 
@@ -42,11 +43,46 @@ app.use('/list', express.static(path.join(__dirname, 'list')));
 app.post('/AddToMailList', function (req, res ) {
   var data = req.body.email;
   var email = "" + data;
+	console.log(req.body);
+	console.log(req.body.email);
 
-	fs.appendFile('list/mailing list.txt', email + '\n', function (err) {
+	fs.readFile('list/mailing list.txt', function (err, data) {
 	  if (err) throw err;
-	  console.log('=======\nEmail Added\n=======\n')
+	  if(data.includes(email)){
+		 console.log('=======\nEmail is already in the mailing list!\n=======\n')
+	  }
+		else {
+			fs.appendFile('list/mailing list.txt', email + '\n', function (err) {
+				if (err) throw err;
+				console.log('=======\nEmail Added\n=======\n')
+
+			res.redirect(301, '/list');
+			});
+		}
 	});
+});
+
+app.post('/RemoveFromMailList', function (req, res ) {
+
+  var data = req.body.email;
+  var email = "" + data;
+	console.log(req.body);
+	console.log(req.body.email);
+
+	const options = {
+	  files: 'list/mailing list.txt',
+	  from: email + '\n',
+	  to: ' ',
+	};
+
+	try {
+	  const results = replace.sync(options);
+	  console.log('Replacement results:', results);
+	}
+	catch (error) {
+	  console.error('Error occurred:', error);
+	}
+	res.redirect(301, '/list');
 });
 
 app.post('/', async function(req, res, next) {
@@ -157,7 +193,7 @@ app.post('/', async function(req, res, next) {
 
 	return req.pipe(busboy);
 });
-app.listen(PORT, () => console.log(`\n========\n- Plex2Discord.Js listening for webhooks on port ${PORT} -\n========`));
+app.listen(PORT, () => console.log(`\n========\n- PLex2Mail.Js listening for webhooks on port ${PORT} -\n========\n`));
 
 
 
